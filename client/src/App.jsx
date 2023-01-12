@@ -1,9 +1,21 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// styling
 import './App.css';
 
-const App = () => {
-  const BASE_URL = 'http://localhost:9999';
+// pages
+import Home from './pages/Home';
+import Room from './pages/Room';
 
-  return <div className='container'>Video Chat</div>;
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/room/:roomId' element={<Room />} />
+      </Routes>
+    </Router>
+  );
 };
 
 export default App;
