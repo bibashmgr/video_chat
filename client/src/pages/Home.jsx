@@ -1,10 +1,14 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// helpers
+import { SocketContext } from '../helpers/Socket';
 
 const Home = () => {
-  const BASE_URL = 'http://localhost:9999';
-
+  const navigate = useNavigate();
   const [roomId, setRoomId] = useState('');
+
+  const socket = React.useContext(SocketContext);
 
   const handleChange = (e) => {
     setRoomId(e.target.value);
@@ -13,14 +17,20 @@ const Home = () => {
   const handleJoinRoom = (e) => {
     e.preventDefault();
     if (roomId !== '') {
-      console.log(roomId);
+      navigate(`/room/${roomId}`);
     }
   };
 
   const handleGenerateRoom = () => {};
 
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log(`user: ${socket.id} connected`);
+    });
+  }, [socket]);
+
   return (
-    <div className='main-container'>
+    <div className='home-container'>
       <div className='card'>
         <form action='#' className='form-container' onSubmit={handleJoinRoom}>
           <input
