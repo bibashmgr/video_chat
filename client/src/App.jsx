@@ -8,18 +8,18 @@ import Home from './pages/Home';
 import Room from './pages/Room';
 
 // helpers
-import { SocketContext, socket } from './helpers/Socket';
+import { SocketProvider } from './helpers/SocketHelper';
 
 const App = () => {
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketProvider>
       <Router>
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/room/:roomId' element={<Room />} />
         </Routes>
       </Router>
-    </SocketContext.Provider>
+    </SocketProvider>
   );
 };
 

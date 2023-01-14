@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 
 // helpers
-import { SocketContext } from '../helpers/Socket';
+import { useSocket } from '../helpers/SocketHelper';
 
 const Room = () => {
-  const socket = React.useContext(SocketContext);
+  const socket = useSocket();
 
   useEffect(() => {
     socket.on('connect', () => {

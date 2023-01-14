@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // helpers
-import { SocketContext } from '../helpers/Socket';
+import { useSocket } from '../helpers/SocketHelper';
 
 const Home = () => {
   const navigate = useNavigate();
   const [roomId, setRoomId] = useState('');
 
-  const socket = React.useContext(SocketContext);
+  const socket = useSocket();
 
   const handleChange = (e) => {
     setRoomId(e.target.value);
