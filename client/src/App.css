@@ -8,7 +8,7 @@
   display: none;
 }
 
-.main-container {
+.home-container {
   width: 100vw;
   height: 100vh;
   position: relative;
@@ -75,10 +75,26 @@
     width: 300px;
     padding: 40px 30px;
   }
+}
 
-  .video-grid {
-    display: grid;
-    gap: 25px;
-    grid-template-columns: repeat(1, auto);
-  }
+.room-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #F3F6F9;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 350px);
+  gap: 25px;
+  width: 100%;
+  height: 100%;
+  padding: 25px;
+}
+  
+.video-container {
+  object-fit: cover;
+  border-radius: 5px;
+  background-color: #212121;
+  width: 350px;
 }

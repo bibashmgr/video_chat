@@ -19,8 +19,20 @@ app.get('/', (req, res) => {
   res.json('Hello');
 });
 
-io.on('connection', () => {
-  console.log('user connected');
+io.on('connection', (socket) => {
+  console.log(`user: ${socket.id} connected`);
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+
+  socket.on('join-room', (roomId) => {
+    console.log(`user: ${socket.id} joined room: ${roomId}`);
+    socket.join(roomId);
+    socket.broadcast
+      .to(roomId)
+      .emit('joined', `user: ${socket.id} joined room: ${roomId}`);
+  });
 });
 
 httpServer.listen(PORT, () => {
