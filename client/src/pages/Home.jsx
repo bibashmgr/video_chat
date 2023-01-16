@@ -8,7 +8,7 @@ const Home = () => {
   const navigate = useNavigate();
   const [roomId, setRoomId] = useState('');
 
-  const socket = useSocket();
+  const { socket } = useSocket();
 
   const handleChange = (e) => {
     setRoomId(e.target.value);
@@ -27,6 +27,10 @@ const Home = () => {
     socket.on('connect', () => {
       console.log(`user: ${socket.id} connected`);
     });
+
+    return () => {
+      socket.off('connect');
+    };
   }, [socket]);
 
   return (

@@ -31,7 +31,19 @@ io.on('connection', (socket) => {
     socket.join(roomId);
     socket.broadcast
       .to(roomId)
-      .emit('joined', `user: ${socket.id} joined room: ${roomId}`);
+      .emit('joined-room', { destinationId: socket.id });
+  });
+
+  socket.on('call-user', (data) => {
+    const { offer, destinationId } = data;
+    socket
+      .to(destinationId)
+      .emit('incoming-call', { offer, callerId: socket.id });
+  });
+
+  socket.on('answer-user', (data) => {
+    const { answer, callerId } = data;
+    socket.to(callerId).emit('answer-received', { answer });
   });
 });
 

@@ -6,7 +6,7 @@ const socket = socketio.connect(`${window.location.hostname}:9999`);
 
 export const SocketProvider = (props) => {
   return (
-    <SocketContext.Provider value={socket}>
+    <SocketContext.Provider value={{ socket }}>
       {props.children}
     </SocketContext.Provider>
   );
