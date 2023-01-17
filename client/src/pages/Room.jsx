@@ -26,13 +26,14 @@ const Room = () => {
 
   const handleIncomingCall = async (data) => {
     const { offer, callerId } = data;
-    setRemoteId(callerId);
+    // setRemoteId(callerId);
     const answer = await createAnswer(offer);
     socket.emit('answer-user', { answer, callerId });
   };
 
   const handleAnswerReceived = async (data) => {
     const { answer } = data;
+    // sendStream(myStream);
     setRemoteDesc(answer);
   };
 
@@ -41,6 +42,8 @@ const Room = () => {
       audio: true,
       video: true,
     });
+    setMyStream(stream);
+    sendStream(stream);
     myStreamRef.current.srcObject = stream;
   };
 
@@ -50,7 +53,7 @@ const Room = () => {
   };
 
   const handleNegotiationEvent = async () => {
-    console.log('needed');
+    // console.log('needed');
     const offer = await createOffer();
     socket.emit('call-user', { offer, destinationId: remoteId });
   };
@@ -65,12 +68,19 @@ const Room = () => {
 
   useEffect(() => {
     peer.addEventListener('track', handleTrackEvent);
-    peer.addEventListener('negotiationneeded', handleNegotiationEvent);
 
     return () => {
       peer.removeEventListener('track', handleTrackEvent);
     };
-  }, []);
+  }, [handleTrackEvent]);
+
+  useEffect(() => {
+    peer.addEventListener('negotiationneeded', handleNegotiationEvent);
+
+    return () => {
+      peer.removeEventListener('negotiationneeded', handleNegotiationEvent);
+    };
+  }, [handleNegotiationEvent]);
 
   useEffect(() => {
     socket.on('joined-room', handleJoinedRoom);
