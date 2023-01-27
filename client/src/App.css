@@ -1,9 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap');
+
 *{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Ubuntu', sans-serif;
 }
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+input {
+  padding: 10px 10px;
+  border: none;
+  outline: none;
+  background-color: #EEF1F5;
+  border-radius: 5px;
+}
+
+button {
+  border: none;
+  outline: none;
+  padding: 10px 0px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #151521;
 }

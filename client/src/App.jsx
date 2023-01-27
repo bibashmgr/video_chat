@@ -4,15 +4,15 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
 // pages
-import Home from './pages/Home';
-import Room from './pages/Room';
+import Home from './pages/Home/index.jsx';
+import Room from './pages/Room/index.jsx';
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/room/:roomId' element={<Room />} />
+        <Route path='/room/:id' element={<Room />} />
       </Routes>
     </Router>
   );
