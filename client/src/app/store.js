@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 // reducers
-import socketReducer from '../features/socket';
+import userInfoReducer from '../features/userInfo';
+import participantsReducer from '../features/participants';
 
 export default configureStore({
   reducer: {
-    socket: socketReducer,
+    userInfo: userInfoReducer,
+    participants: participantsReducer,
   },
 });

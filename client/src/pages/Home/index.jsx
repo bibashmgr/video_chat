@@ -1,25 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 // styles
 import './index.css';
 
+// actions
+import { setUserEmail } from '../../features/userInfo';
+import { addParticipant } from '../../features/participants';
+
 const Home = () => {
-  const socket = useSelector((state) => state.socket.value);
   const [formInfo, setFormInfo] = useState({
     email: '',
     roomId: '',
   });
-
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log(`user: ${socket.id} connected`);
-    });
-
-    return () => {
-      socket.off('connect');
-    };
-  }, []);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // handlers
   const handleChange = (e) => {
@@ -28,7 +24,18 @@ const Home = () => {
 
   const handleJoinRoom = (e) => {
     e.preventDefault();
-    console.log(formInfo);
+    navigate(`room/${formInfo.roomId}`);
+    dispatch(setUserEmail(formInfo.email));
+    dispatch(
+      addParticipant({
+        email: formInfo.email,
+        prefs: {
+          audio: true,
+          video: false,
+          screen: false,
+        },
+      })
+    );
   };
 
   return (
