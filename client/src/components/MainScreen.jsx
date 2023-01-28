@@ -1,18 +1,12 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 
 // styling
 import './MainScreen.css';
 
-// helpers
-import { generateRandomColor } from '../helpers/colorGenerator';
-
 // icons
 import { IoMdMicOff } from 'react-icons/io';
 
-const MainScreen = () => {
-  const participants = useSelector((state) => state.participants.value);
-
+const MainScreen = ({ participants }) => {
   let gridCol =
     participants.length === 1 ? 1 : participants.length <= 4 ? 2 : 4;
   let gridColSize = participants.length <= 4 ? 1 : 2;
@@ -32,21 +26,21 @@ const MainScreen = () => {
         }}
       >
         {participants.map((participant, index) => {
-          return <ScreenCard key={index} participant={participant} />;
+          return <ParticipantCard key={index} participant={participant} />;
         })}
       </div>
     </div>
   );
 };
 
-const ScreenCard = ({ participant }) => {
+const ParticipantCard = ({ participant }) => {
   return (
     <div className='screen-card'>
       {!participant.prefs.video && (
         <div className='avatar-container'>
           <div
             className='avatar'
-            style={{ backgroundColor: `${generateRandomColor()}` }}
+            style={{ backgroundColor: `${participant.avatarColor}` }}
           >
             {participant.email.charAt(0)}
           </div>
@@ -54,9 +48,17 @@ const ScreenCard = ({ participant }) => {
       )}
       {participant.prefs.video && <video className='video'></video>}
       {!participant.prefs.audio && <IoMdMicOff className='muted-icon' />}
-      {!participant.prefs.video && (
-        <div className='participant-email'>{participant.email}</div>
-      )}
+
+      <div className='participant-email'>{participant.email}</div>
+    </div>
+  );
+};
+
+const ScreenCard = ({ participant }) => {
+  return (
+    <div className='screen-card'>
+      <video className='video'></video>
+      <div className='participant-email'>{participant.email}</div>
     </div>
   );
 };

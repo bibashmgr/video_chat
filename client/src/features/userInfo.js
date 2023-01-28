@@ -5,30 +5,22 @@ export const userInfoSlice = createSlice({
   initialState: {
     value: {
       email: '',
-      prefs: {
-        audio: true,
-        video: false,
-        screen: false,
-      },
     },
   },
   reducers: {
-    setUserEmail: (state, actions) => {
-      state.value.email = actions.payload;
+    setUserInfo: (state, actions) => {
+      let { email } = actions.payload;
+      state.value = { ...state.value, email: email };
     },
-    setAudio: (state) => {
-      state.value.prefs.audio = !state.value.prefs.audio;
-    },
-    setVideo: (state) => {
-      state.value.prefs.audio = !state.value.prefs.video;
-    },
-    setScreen: (state) => {
-      state.value.prefs.audio = !state.value.prefs.screen;
+
+    removeUser: (state) => {
+      state.value = {
+        email: '',
+      };
     },
   },
 });
 
-export const { setUserEmail, setVideo, setAudio, setScreen } =
-  userInfoSlice.actions;
+export const { setUserInfo, removeUser } = userInfoSlice.actions;
 
 export default userInfoSlice.reducer;

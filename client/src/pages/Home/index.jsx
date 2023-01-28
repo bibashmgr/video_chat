@@ -6,8 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import './index.css';
 
 // actions
-import { setUserEmail } from '../../features/userInfo';
+import { setUserInfo } from '../../features/userInfo';
 import { addParticipant } from '../../features/participants';
+
+// helpers
+import { generateRandomColor } from '../../helpers/colorGenerator';
 
 const Home = () => {
   const [formInfo, setFormInfo] = useState({
@@ -25,12 +28,17 @@ const Home = () => {
   const handleJoinRoom = (e) => {
     e.preventDefault();
     navigate(`room/${formInfo.roomId}`);
-    dispatch(setUserEmail(formInfo.email));
+    dispatch(
+      setUserInfo({
+        email: formInfo.email,
+      })
+    );
     dispatch(
       addParticipant({
         email: formInfo.email,
+        avatarColor: generateRandomColor(),
         prefs: {
-          audio: true,
+          audio: false,
           video: false,
           screen: false,
         },

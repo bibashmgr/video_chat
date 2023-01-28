@@ -1,64 +1,54 @@
-import React, { useState } from 'react';
-
+import React from 'react';
 // styling
 import './BottomNavigation.css';
 
 // icons
 import { IoMdMic, IoMdMicOff } from 'react-icons/io';
 import { BiVideo, BiVideoOff } from 'react-icons/bi';
-import { TbScreenShare, TbScreenShareOff } from 'react-icons/tb';
+import { BsPauseFill } from 'react-icons/bs';
+import { TbScreenShare } from 'react-icons/tb';
 import { TbPhoneX } from 'react-icons/tb';
 
-const BottomNavigation = () => {
-  const [prefs, setPrefs] = useState({
-    audio: true,
-    video: false,
-    screen: false,
-  });
-
-  const handleAudio = () => {
-    setPrefs({ ...prefs, audio: !prefs.audio });
-  };
-  const handleVideo = () => {
-    setPrefs({ ...prefs, video: !prefs.video });
-  };
-  const handleScreen = () => {
-    setPrefs({ ...prefs, screen: !prefs.screen });
-  };
-
+const BottomNavigation = ({
+  userInfo,
+  handleAudio,
+  handleVideo,
+  handleScreen,
+  handleEndCall,
+}) => {
   return (
     <nav className='navbar-container'>
       <div
-        className={`icon-btn ${!prefs.audio && 'icon-btn-disable'}`}
+        className={`icon-btn ${!userInfo.prefs.audio && 'icon-btn-disable'}`}
         onClick={handleAudio}
       >
-        {prefs.audio ? (
+        {userInfo.prefs.audio ? (
           <IoMdMic className='icon' />
         ) : (
           <IoMdMicOff className='icon' />
         )}
       </div>
       <div
-        className={`icon-btn ${!prefs.video && 'icon-btn-disable'}`}
+        className={`icon-btn ${!userInfo.prefs.video && 'icon-btn-disable'}`}
         onClick={handleVideo}
       >
-        {prefs.video ? (
+        {userInfo.prefs.video ? (
           <BiVideo className='icon' />
         ) : (
           <BiVideoOff className='icon' />
         )}
       </div>
       <div
-        className={`icon-btn ${!prefs.screen && 'icon-btn-disable'}`}
+        className={`icon-btn ${userInfo.prefs.screen && 'icon-btn-disable'}`}
         onClick={handleScreen}
       >
-        {prefs.screen ? (
-          <TbScreenShare className='icon' />
+        {userInfo.prefs.screen ? (
+          <BsPauseFill className='icon' />
         ) : (
-          <TbScreenShareOff className='icon' />
+          <TbScreenShare className='icon' />
         )}
       </div>
-      <div className='icon-btn icon-btn-disable'>
+      <div className='icon-btn icon-btn-disable' onClick={handleEndCall}>
         <TbPhoneX className='icon' />
       </div>
     </nav>

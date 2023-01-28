@@ -16,7 +16,6 @@ const DB_URL = process.env.MONGODB_URL;
 
 // routes
 const indexRoutes = require('./routes/index.js');
-const roomRoutes = require('./routes/room.js');
 
 app.use(
   cors({
@@ -27,7 +26,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ extended: true }));
 
 app.use('/', indexRoutes);
-app.use('/api/room', roomRoutes);
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
