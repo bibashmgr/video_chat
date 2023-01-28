@@ -24,9 +24,15 @@ const MainScreen = ({ participants }) => {
           '--grid-col-size': gridColSize,
           '--grid-row-size': gridRowSize,
         }}
+        id='screen-grid'
       >
         {participants.map((participant, index) => {
           return <ParticipantCard key={index} participant={participant} />;
+        })}
+        {participants.map((participant, index) => {
+          if (participant.prefs.screen) {
+            return <ScreenCard key={index} participant={participant} />;
+          }
         })}
       </div>
     </div>

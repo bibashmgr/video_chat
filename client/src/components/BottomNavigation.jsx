@@ -19,30 +19,30 @@ const BottomNavigation = ({
   return (
     <nav className='navbar-container'>
       <div
-        className={`icon-btn ${!userInfo.prefs.audio && 'icon-btn-disable'}`}
+        className={`icon-btn ${!userInfo?.prefs.audio && 'icon-btn-disable'}`}
         onClick={handleAudio}
       >
-        {userInfo.prefs.audio ? (
+        {userInfo?.prefs.audio ? (
           <IoMdMic className='icon' />
         ) : (
           <IoMdMicOff className='icon' />
         )}
       </div>
       <div
-        className={`icon-btn ${!userInfo.prefs.video && 'icon-btn-disable'}`}
+        className={`icon-btn ${!userInfo?.prefs.video && 'icon-btn-disable'}`}
         onClick={handleVideo}
       >
-        {userInfo.prefs.video ? (
+        {userInfo?.prefs.video ? (
           <BiVideo className='icon' />
         ) : (
           <BiVideoOff className='icon' />
         )}
       </div>
       <div
-        className={`icon-btn ${userInfo.prefs.screen && 'icon-btn-disable'}`}
+        className={`icon-btn ${userInfo?.prefs.screen && 'icon-btn-disable'}`}
         onClick={handleScreen}
       >
-        {userInfo.prefs.screen ? (
+        {userInfo?.prefs.screen ? (
           <BsPauseFill className='icon' />
         ) : (
           <TbScreenShare className='icon' />
