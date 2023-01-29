@@ -6,6 +6,9 @@ export const participantsSlice = createSlice({
     value: [],
   },
   reducers: {
+    setParticipants: (state, actions) => {
+      state.value = actions.payload;
+    },
     addParticipant: (state, actions) => {
       state.value.push(actions.payload);
     },
@@ -50,6 +53,7 @@ export const participantsSlice = createSlice({
 });
 
 export const {
+  setParticipants,
   addParticipant,
   removeParticipant,
   setAudio,

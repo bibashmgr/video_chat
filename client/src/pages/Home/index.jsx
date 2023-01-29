@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 // styles
@@ -7,10 +7,9 @@ import './index.css';
 
 // actions
 import { setUserInfo } from '../../features/userInfo';
-import { addParticipant } from '../../features/participants';
 
 // helpers
-import { generateRandomColor } from '../../helpers/colorGenerator';
+import { useSocket } from '../../helpers/socketHelper';
 
 const Home = () => {
   const [formInfo, setFormInfo] = useState({
@@ -27,21 +26,12 @@ const Home = () => {
 
   const handleJoinRoom = (e) => {
     e.preventDefault();
+
     navigate(`room/${formInfo.roomId}`);
+
     dispatch(
       setUserInfo({
         email: formInfo.email,
-      })
-    );
-    dispatch(
-      addParticipant({
-        email: formInfo.email,
-        avatarColor: generateRandomColor(),
-        prefs: {
-          audio: false,
-          video: false,
-          screen: false,
-        },
       })
     );
   };
