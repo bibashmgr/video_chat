@@ -77,7 +77,6 @@ const Room = () => {
         dispatch(setParticipants(data));
       });
       socket.on('user-disconnected', (data) => {
-        console.log(data);
         dispatch(setParticipants(data));
       });
     }
