@@ -10,9 +10,7 @@ export const participantsSlice = createSlice({
       state.value.push(actions.payload);
     },
     addParticipants: (state, actions) => {
-      actions.payload.map((participant) => {
-        state.value.push(participant);
-      });
+      state.value = [...state.value, ...actions.payload];
     },
     removeParticipant: (state, actions) => {
       let { userId } = actions.payload;

@@ -64,18 +64,28 @@ const Room = () => {
 
   useEffect(() => {
     socket.on('user-joined', (data) => {
+      console.log('user-joined');
       dispatch(addParticipants(data));
     });
     socket.on('new-user-joined', (data) => {
+      console.log('new-user-joined');
       dispatch(addParticipant(data));
     });
     socket.on('user-left', (data) => {
       dispatch(removeParticipant({ userId: data.userId }));
     });
     socket.on('user-disconnected', (data) => {
-      console.log(data);
+      dispatch(removeParticipant({ userId: data.userId }));
     });
+    return () => {
+      socket.off('user-joined');
+      socket.off('new-user-joined');
+      socket.off('user-left');
+      socket.off('user-disconnected');
+    };
   }, []);
+
+  useEffect(() => {}, []);
 
   return (
     <div className='container'>

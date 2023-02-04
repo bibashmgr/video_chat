@@ -53,12 +53,11 @@ module.exports = (io) => {
 
     socket.on('join-room', (data) => {
       const { roomId, participantInfo } = data;
-      // console.log(data);
+      console.log(`${participantInfo.email} joined ${roomId}`);
 
       let roomParticipants = getParticipants(roomId);
-      // console.log(roomParticipants);
+
       updateList(roomId, participantInfo, socket.id);
-      // console.log(participants);
 
       socket.join(roomId);
       io.to(socket.id).emit('user-joined', roomParticipants);
@@ -69,9 +68,12 @@ module.exports = (io) => {
 
     socket.on('leave-room', (data) => {
       const { roomId, email } = data;
+
       let isParticipantExist = getParticipant(roomId, email);
       removeParticipantsBySocketId(isParticipantExist.socketId);
-      socket.to(roomId).emit('user-left', { userId: email });
+      console.log(`${email} left ${roomId}`);
+
+      socket.broadcast.to(roomId).emit('user-left', { userId: email });
       socket.leave(roomId);
     });
 
@@ -80,7 +82,11 @@ module.exports = (io) => {
       let isParticipantExist = getParticipantBySocketId(socket.id);
       if (isParticipantExist) {
         removeParticipantsBySocketId(socket.id);
-        socket
+        console.log(
+          `${isParticipantExist.email} left ${isParticipantExist.roomId}`
+        );
+
+        socket.broadcast
           .to(isParticipantExist.roomId)
           .emit('user-disconnected', { userId: isParticipantExist.email });
       }
