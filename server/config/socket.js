@@ -3,8 +3,8 @@ module.exports = (io) => {
   io.on('connection', (socket) => {
     console.log(`user: ${socket.id} connected`);
 
-    // handlers
-    const updateParticipants = (roomId, participantInfo, socketId) => {
+    // add participants to the list
+    const updateList = (roomId, participantInfo, socketId) => {
       participants.push({
         ...participantInfo,
         roomId: roomId,
@@ -12,6 +12,7 @@ module.exports = (io) => {
       });
     };
 
+    // get participants of particular room from the list
     const getParticipants = (roomId) => {
       let newParticipants = [];
       participants.filter((participant) => {
@@ -27,6 +28,7 @@ module.exports = (io) => {
       return newParticipants;
     };
 
+    // remove a participant from the list using socketId
     const removeParticipantsBySocketId = (socketId) => {
       let updatedParticipants = participants.filter(
         (participant) => participant.socketId !== socketId
@@ -34,6 +36,7 @@ module.exports = (io) => {
       participants = updatedParticipants;
     };
 
+    // get a participant from the list
     const getParticipant = (roomId, email) => {
       return participants.find(
         (participant) =>
@@ -41,6 +44,7 @@ module.exports = (io) => {
       );
     };
 
+    // get a participant from the list using socketid
     const getParticipantBySocketId = (socketId) => {
       return participants.find(
         (participant) => participant.socketId === socketId
@@ -51,22 +55,23 @@ module.exports = (io) => {
       const { roomId, participantInfo } = data;
       // console.log(data);
 
-      updateParticipants(roomId, participantInfo, socket.id);
-      // console.log(participants);
-
       let roomParticipants = getParticipants(roomId);
       // console.log(roomParticipants);
+      updateList(roomId, participantInfo, socket.id);
+      // console.log(participants);
 
       socket.join(roomId);
-      io.to(roomId).emit('user-joined', roomParticipants);
+      io.to(socket.id).emit('user-joined', roomParticipants);
+      socket.broadcast.to(roomId).emit('new-user-joined', {
+        ...participantInfo,
+      });
     });
 
     socket.on('leave-room', (data) => {
       const { roomId, email } = data;
       let isParticipantExist = getParticipant(roomId, email);
       removeParticipantsBySocketId(isParticipantExist.socketId);
-      let roomParticipants = getParticipants(roomId);
-      socket.to(roomId).emit('user-left', roomParticipants);
+      socket.to(roomId).emit('user-left', { userId: email });
       socket.leave(roomId);
     });
 
@@ -75,10 +80,9 @@ module.exports = (io) => {
       let isParticipantExist = getParticipantBySocketId(socket.id);
       if (isParticipantExist) {
         removeParticipantsBySocketId(socket.id);
-        let roomParticipants = getParticipants(isParticipantExist.roomId);
         socket
           .to(isParticipantExist.roomId)
-          .emit('user-disconnected', roomParticipants);
+          .emit('user-disconnected', { userId: isParticipantExist.email });
       }
     });
   });

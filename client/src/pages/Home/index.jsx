@@ -7,11 +7,15 @@ import './index.css';
 
 // actions
 import { setUserInfo } from '../../features/userInfo';
+import { addParticipant } from '../../features/participants';
 
 // helpers
 import { useSocket } from '../../helpers/socketHelper';
+import { generateRandomColor } from '../../helpers/colorGenerator';
 
 const Home = () => {
+  const { socket } = useSocket();
+
   const [formInfo, setFormInfo] = useState({
     email: '',
     roomId: '',
@@ -26,8 +30,24 @@ const Home = () => {
 
   const handleJoinRoom = (e) => {
     e.preventDefault();
+    let participantInfo = {
+      email: formInfo.email,
+      avatarColor: generateRandomColor(),
+      prefs: {
+        audio: false,
+        video: false,
+        screen: false,
+      },
+    };
 
     navigate(`room/${formInfo.roomId}`);
+
+    socket.emit('join-room', {
+      roomId: formInfo.roomId,
+      participantInfo: participantInfo,
+    });
+
+    dispatch(addParticipant(participantInfo));
 
     dispatch(
       setUserInfo({

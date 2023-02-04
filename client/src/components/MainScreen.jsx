@@ -6,7 +6,7 @@ import './MainScreen.css';
 // icons
 import { IoMdMicOff } from 'react-icons/io';
 
-const MainScreen = ({ participants }) => {
+const MainScreen = ({ participants, userInfo }) => {
   let gridCol =
     participants.length === 1 ? 1 : participants.length <= 4 ? 2 : 4;
   let gridColSize = participants.length <= 4 ? 1 : 2;
@@ -27,11 +27,23 @@ const MainScreen = ({ participants }) => {
         id='screen-grid'
       >
         {participants.map((participant, index) => {
-          return <ParticipantCard key={index} participant={participant} />;
+          return (
+            <ParticipantCard
+              key={index}
+              participant={participant}
+              userInfo={userInfo}
+            />
+          );
         })}
         {participants.map((participant, index) => {
           if (participant.prefs.screen) {
-            return <ScreenCard key={index} participant={participant} />;
+            return (
+              <ScreenCard
+                key={index}
+                participant={participant}
+                userInfo={userInfo}
+              />
+            );
           }
         })}
       </div>
@@ -39,7 +51,7 @@ const MainScreen = ({ participants }) => {
   );
 };
 
-const ParticipantCard = ({ participant }) => {
+const ParticipantCard = ({ participant, userInfo }) => {
   return (
     <div className='screen-card'>
       {!participant.prefs.video && (
@@ -55,16 +67,20 @@ const ParticipantCard = ({ participant }) => {
       {participant.prefs.video && <video className='video'></video>}
       {!participant.prefs.audio && <IoMdMicOff className='muted-icon' />}
 
-      <div className='participant-email'>{participant.email}</div>
+      <div className='participant-email'>
+        {participant.email === userInfo.email ? 'You' : participant.email}
+      </div>
     </div>
   );
 };
 
-const ScreenCard = ({ participant }) => {
+const ScreenCard = ({ participant, userInfo }) => {
   return (
     <div className='screen-card'>
       <video className='video'></video>
-      <div className='participant-email'>{participant.email}</div>
+      <div className='participant-email'>
+        {participant.email === userInfo.email ? 'You' : participant.email}
+      </div>
     </div>
   );
 };

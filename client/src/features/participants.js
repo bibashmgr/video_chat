@@ -6,11 +6,13 @@ export const participantsSlice = createSlice({
     value: [],
   },
   reducers: {
-    setParticipants: (state, actions) => {
-      state.value = actions.payload;
-    },
     addParticipant: (state, actions) => {
       state.value.push(actions.payload);
+    },
+    addParticipants: (state, actions) => {
+      actions.payload.map((participant) => {
+        state.value.push(participant);
+      });
     },
     removeParticipant: (state, actions) => {
       let { userId } = actions.payload;
@@ -18,6 +20,9 @@ export const participantsSlice = createSlice({
         (participant) => participant.email !== userId
       );
       state.value = newParticipants;
+    },
+    clearParticipants: (state) => {
+      state.value = [];
     },
     setAudio: (state, actions) => {
       let { userId } = actions.payload;
@@ -53,9 +58,10 @@ export const participantsSlice = createSlice({
 });
 
 export const {
-  setParticipants,
   addParticipant,
+  addParticipants,
   removeParticipant,
+  clearParticipants,
   setAudio,
   setVideo,
   setScreen,
