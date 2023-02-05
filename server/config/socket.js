@@ -92,16 +92,15 @@ module.exports = (io) => {
       }
     });
 
-    // socket.on('send-ice-candiate', (data) => {
-    //   const { roomId, sender, receiver, iceCandidate } = data;
-
-    //   const isParticipantExist = getParticipant(roomId, receiver);
-    //   io.to(isParticipantExist.socketId).emit('receive-ice-candidate', {
-    //     sender: sender,
-    //     receiver: receiver,
-    //     iceCandidate: iceCandidate,
-    //   });
-    // });
+    socket.on('send-candidate', (data) => {
+      const { roomId, sender, receiver, candidate } = data;
+      const isParticipantExist = getParticipant(roomId, receiver);
+      io.to(isParticipantExist.socketId).emit('receive-candidate', {
+        sender: sender,
+        receiver: receiver,
+        candidate: candidate,
+      });
+    });
 
     socket.on('leave-room', (data) => {
       const { roomId, email } = data;

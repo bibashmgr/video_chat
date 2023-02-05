@@ -29,6 +29,7 @@ const Room = () => {
   const participants = useSelector((state) => state.participants.value);
 
   const [peers, setPeers] = useState([]);
+  const [localStream, setLocalStream] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -36,7 +37,14 @@ const Room = () => {
   const { roomId } = useParams();
 
   const configuration = {
-    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+    iceServers: [
+      {
+        urls: [
+          'stun:stun.l.google.com:19302',
+          'stun:global.stun.twilio.com:3478',
+        ],
+      },
+    ],
   };
 
   // controllers
@@ -63,9 +71,11 @@ const Room = () => {
   };
   const makeCall = async (currentUser, newUser) => {
     const peerConnection = new RTCPeerConnection(configuration);
+    const dataChannel = peerConnection.createDataChannel('dataChannel');
 
     const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
+    const localDesc = new RTCSessionDescription(offer);
+    await peerConnection.setLocalDescription(localDesc);
 
     socket.emit('call-user', {
       roomId: roomId,
@@ -79,6 +89,22 @@ const Room = () => {
 
       const remoteDesc = new RTCSessionDescription(answer);
       await peerConnection.setRemoteDescription(remoteDesc);
+    });
+
+    peerConnection.addEventListener('icecandidate', (event) => {
+      if (event.candidate) {
+        socket.emit('send-candidate', {
+          roomId: roomId,
+          sender: currentUser,
+          receiver: newUser,
+          candidate: event.candidate,
+        });
+      }
+    });
+
+    socket.on('receive-candidate', async (data) => {
+      const { sender, receiver, candidate } = data;
+      await peerConnection.addIceCandidate(candidate);
     });
   };
 
@@ -117,6 +143,10 @@ const Room = () => {
 
       const peerConnection = new RTCPeerConnection(configuration);
 
+      peerConnection.ondatachannel = (event) => {
+        const remoteDataChannel = event.channel;
+      };
+
       const remoteDesc = new RTCSessionDescription(offer);
       await peerConnection.setRemoteDescription(remoteDesc);
 
@@ -130,21 +160,21 @@ const Room = () => {
         answer: answer,
       });
 
-      // peerConnection.addEventListener('icecandidate', (event) => {
-      //   if (event.candidate) {
-      //     socket.emit('send-ice-candidate', {
-      //       roomId: roomId,
-      //       sender: callee,
-      //       receiver: caller,
-      //       candidate: event.candidate,
-      //     });
-      //   }
-      // });
+      peerConnection.addEventListener('icecandidate', (event) => {
+        if (event.candidate) {
+          socket.emit('send-candidate', {
+            roomId: roomId,
+            sender: callee,
+            receiver: caller,
+            candidate: event.candidate,
+          });
+        }
+      });
 
-      // socket.once('receive-ice-candidate', async (data) => {
-      //   const { sender, receiver, iceCandidate } = data;
-      //   await peerConnection.addIceCandidate(iceCandidate);
-      // });
+      socket.on('receive-candidate', async (data) => {
+        const { sender, receiver, candidate } = data;
+        await peerConnection.addIceCandidate(candidate);
+      });
     });
 
     return () => {
@@ -154,7 +184,11 @@ const Room = () => {
 
   return (
     <div className='container'>
-      <MainScreen participants={participants} userInfo={userInfo} />
+      <MainScreen
+        participants={participants}
+        userInfo={userInfo}
+        localStream={localStream}
+      />
       <BottomNavigation
         userInfo={getUserInfo()}
         handleAudio={handleAudio}
