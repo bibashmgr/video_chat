@@ -66,6 +66,43 @@ module.exports = (io) => {
       });
     });
 
+    socket.on('call-user', (data) => {
+      const { roomId, caller, callee, offer } = data;
+      const isParticipantExist = getParticipant(roomId, callee);
+
+      if (isParticipantExist) {
+        io.to(isParticipantExist.socketId).emit('incoming-call', {
+          caller: caller,
+          callee: callee,
+          offer: offer,
+        });
+      }
+    });
+
+    socket.on('answer-call', (data) => {
+      const { roomId, caller, callee, answer } = data;
+      const isParticipantExist = getParticipant(roomId, caller);
+
+      if (isParticipantExist) {
+        io.to(isParticipantExist.socketId).emit('answer-received', {
+          caller: caller,
+          callee: callee,
+          answer: answer,
+        });
+      }
+    });
+
+    // socket.on('send-ice-candiate', (data) => {
+    //   const { roomId, sender, receiver, iceCandidate } = data;
+
+    //   const isParticipantExist = getParticipant(roomId, receiver);
+    //   io.to(isParticipantExist.socketId).emit('receive-ice-candidate', {
+    //     sender: sender,
+    //     receiver: receiver,
+    //     iceCandidate: iceCandidate,
+    //   });
+    // });
+
     socket.on('leave-room', (data) => {
       const { roomId, email } = data;
 

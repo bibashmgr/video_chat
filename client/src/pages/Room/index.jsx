@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -28,14 +28,21 @@ const Room = () => {
   const userInfo = useSelector((state) => state.userInfo.value);
   const participants = useSelector((state) => state.participants.value);
 
+  const [peers, setPeers] = useState([]);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { socket } = useSocket();
   const { roomId } = useParams();
 
+  const configuration = {
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+  };
+
   // controllers
   const handleAudio = () => {
     dispatch(setAudio({ userId: userInfo.email }));
+    console.log(peers);
   };
   const handleVideo = () => {
     dispatch(setVideo({ userId: userInfo.email }));
@@ -54,6 +61,26 @@ const Room = () => {
       (participant) => participant.email === userInfo.email
     );
   };
+  const makeCall = async (currentUser, newUser) => {
+    const peerConnection = new RTCPeerConnection(configuration);
+
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+
+    socket.emit('call-user', {
+      roomId: roomId,
+      caller: currentUser,
+      callee: newUser,
+      offer: offer,
+    });
+
+    socket.once('answer-received', async (data) => {
+      const { caller, callee, answer } = data;
+
+      const remoteDesc = new RTCSessionDescription(answer);
+      await peerConnection.setRemoteDescription(remoteDesc);
+    });
+  };
 
   useEffect(() => {
     if (userInfo.email === '') {
@@ -64,11 +91,10 @@ const Room = () => {
 
   useEffect(() => {
     socket.on('user-joined', (data) => {
-      console.log('user-joined');
       dispatch(addParticipants(data));
     });
     socket.on('new-user-joined', (data) => {
-      console.log('new-user-joined');
+      makeCall(userInfo.email, data.email);
       dispatch(addParticipant(data));
     });
     socket.on('user-left', (data) => {
@@ -85,7 +111,46 @@ const Room = () => {
     };
   }, []);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    socket.on('incoming-call', async (data) => {
+      const { caller, callee, offer } = data;
+
+      const peerConnection = new RTCPeerConnection(configuration);
+
+      const remoteDesc = new RTCSessionDescription(offer);
+      await peerConnection.setRemoteDescription(remoteDesc);
+
+      const answer = await peerConnection.createAnswer(offer);
+      await peerConnection.setLocalDescription(answer);
+
+      socket.emit('answer-call', {
+        roomId: roomId,
+        caller: caller,
+        callee: callee,
+        answer: answer,
+      });
+
+      // peerConnection.addEventListener('icecandidate', (event) => {
+      //   if (event.candidate) {
+      //     socket.emit('send-ice-candidate', {
+      //       roomId: roomId,
+      //       sender: callee,
+      //       receiver: caller,
+      //       candidate: event.candidate,
+      //     });
+      //   }
+      // });
+
+      // socket.once('receive-ice-candidate', async (data) => {
+      //   const { sender, receiver, iceCandidate } = data;
+      //   await peerConnection.addIceCandidate(iceCandidate);
+      // });
+    });
+
+    return () => {
+      socket.off('incoming-call');
+    };
+  }, []);
 
   return (
     <div className='container'>
