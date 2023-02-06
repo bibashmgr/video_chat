@@ -195,14 +195,6 @@ const Room = () => {
     peerConnection.addEventListener('connectionstatechange', (event) => {
       if (peerConnection.connectionState === 'connected') {
         console.log('Connected');
-
-        console.log(localStream);
-
-        const newPeers = {
-          email: newUser,
-          peerConnection: peerConnection,
-        };
-        setPeers((prevState) => [...prevState, newPeers]);
       }
     });
   };
