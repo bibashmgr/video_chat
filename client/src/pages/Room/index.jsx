@@ -50,10 +50,19 @@ const Room = () => {
   // controllers
   const handleAudio = () => {
     dispatch(setAudio({ userId: userInfo.email }));
-    console.log(peers);
+    localStream.getAudioTracks()[0].enabled = !getUserInfo().prefs.audio;
   };
   const handleVideo = () => {
     dispatch(setVideo({ userId: userInfo.email }));
+
+    console.log(peers);
+
+    localStream.getVideoTracks()[0].enabled = !getUserInfo().prefs.video;
+
+    let videoElement = document.getElementById(`video-${userInfo.email}`);
+    if (videoElement) {
+      videoElement.srcObject = localStream;
+    }
   };
   const handleScreen = () => {
     dispatch(setScreen({ userId: userInfo.email }));
@@ -106,6 +115,20 @@ const Room = () => {
       const { sender, receiver, candidate } = data;
       await peerConnection.addIceCandidate(candidate);
     });
+
+    peerConnection.addEventListener('connectionstatechange', (event) => {
+      if (peerConnection.connectionState === 'connected') {
+        console.log('Connected');
+
+        console.log(localStream);
+
+        const newPeers = {
+          email: newUser,
+          peerConnection: peerConnection,
+        };
+        setPeers((prevState) => [...prevState, newPeers]);
+      }
+    });
   };
 
   useEffect(() => {
@@ -113,6 +136,22 @@ const Room = () => {
       dispatch(clearParticipants([]));
       navigate('/');
     }
+  }, []);
+
+  useState(() => {
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: true,
+        video: true,
+      })
+      .then((stream) => {
+        stream.getVideoTracks()[0].enabled = false;
+        stream.getAudioTracks()[0].enabled = false;
+        setLocalStream(stream);
+      })
+      .catch((error) => {
+        console.error('Error accessing media devices.', error);
+      });
   }, []);
 
   useEffect(() => {
@@ -174,6 +213,18 @@ const Room = () => {
       socket.on('receive-candidate', async (data) => {
         const { sender, receiver, candidate } = data;
         await peerConnection.addIceCandidate(candidate);
+      });
+
+      peerConnection.addEventListener('connectionstatechange', (event) => {
+        if (peerConnection.connectionState === 'connected') {
+          console.log('Connected');
+
+          const newPeers = {
+            email: caller,
+            peerConnection: peerConnection,
+          };
+          setPeers((prevState) => [...prevState, newPeers]);
+        }
       });
     });
 

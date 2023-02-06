@@ -31,6 +31,7 @@ const BottomNavigation = ({
       <div
         className={`icon-btn ${!userInfo?.prefs.video && 'icon-btn-disable'}`}
         onClick={handleVideo}
+        id='video-controller'
       >
         {userInfo?.prefs.video ? (
           <BiVideo className='icon' />

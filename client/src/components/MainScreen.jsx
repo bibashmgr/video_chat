@@ -6,7 +6,7 @@ import './MainScreen.css';
 // icons
 import { IoMdMicOff } from 'react-icons/io';
 
-const MainScreen = ({ participants, userInfo }) => {
+const MainScreen = ({ participants, userInfo, localStream }) => {
   let gridCol =
     participants.length === 1 ? 1 : participants.length <= 4 ? 2 : 4;
   let gridColSize = participants.length <= 4 ? 1 : 2;
@@ -32,6 +32,7 @@ const MainScreen = ({ participants, userInfo }) => {
               key={index}
               participant={participant}
               userInfo={userInfo}
+              localStream={localStream}
             />
           );
         })}
@@ -51,20 +52,29 @@ const MainScreen = ({ participants, userInfo }) => {
   );
 };
 
-const ParticipantCard = ({ participant, userInfo }) => {
+const ParticipantCard = ({ participant, userInfo, localStream }) => {
   return (
     <div className='screen-card'>
       {!participant.prefs.video && (
-        <div className='avatar-container'>
-          <div
-            className='avatar'
-            style={{ backgroundColor: `${participant.avatarColor}` }}
-          >
-            {participant.email.charAt(0)}
-          </div>
+        <div
+          className='avatar'
+          style={{ backgroundColor: `${participant.avatarColor}` }}
+        >
+          {participant.email.charAt(0)}
         </div>
       )}
-      {participant.prefs.video && <video className='video'></video>}
+
+      <video
+        className='video'
+        id={`video-${participant.email}`}
+        autoPlay={true}
+        muted={true}
+        controls={false}
+        style={{
+          backgroundColor: !participant.prefs.video ? '#000000' : 'none',
+        }}
+      ></video>
+
       {!participant.prefs.audio && <IoMdMicOff className='muted-icon' />}
 
       <div className='participant-email'>
