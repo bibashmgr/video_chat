@@ -74,6 +74,19 @@ const Room = () => {
         const remoteDataChannel = event.channel;
       };
 
+      await localStream.getTracks().forEach((track) => {
+        console.log('tracks');
+        peerConnection.addTrack(track, localStream);
+      });
+
+      peerConnection.addEventListener('track', (event) => {
+        console.log('remote-stream');
+        let videoElement = document.getElementById(`video-${caller}`);
+        if (videoElement) {
+          videoElement.srcObject = event.streams[0];
+        }
+      });
+
       const remoteDesc = new RTCSessionDescription(offer);
       await peerConnection.setRemoteDescription(remoteDesc);
 
@@ -101,12 +114,6 @@ const Room = () => {
       socket.on('receive-candidate', async (data) => {
         const { sender, receiver, candidate } = data;
         await peerConnection.addIceCandidate(candidate);
-      });
-
-      peerConnection.addEventListener('connectionstatechange', (event) => {
-        if (peerConnection.connectionState === 'connected') {
-          console.log('Connected');
-        }
       });
     });
   };
@@ -158,6 +165,19 @@ const Room = () => {
     const peerConnection = new RTCPeerConnection(configuration);
     const dataChannel = peerConnection.createDataChannel('dataChannel');
 
+    await localStream.getTracks().forEach((track) => {
+      console.log('tracks');
+      peerConnection.addTrack(track, localStream);
+    });
+
+    peerConnection.addEventListener('track', (event) => {
+      console.log('remote-stream');
+      let videoElement = document.getElementById(`video-${newUser}`);
+      if (videoElement) {
+        videoElement.srcObject = event.streams[0];
+      }
+    });
+
     const offer = await peerConnection.createOffer();
     const localDesc = new RTCSessionDescription(offer);
     await peerConnection.setLocalDescription(localDesc);
@@ -190,12 +210,6 @@ const Room = () => {
     socket.on('receive-candidate', async (data) => {
       const { sender, receiver, candidate } = data;
       await peerConnection.addIceCandidate(candidate);
-    });
-
-    peerConnection.addEventListener('connectionstatechange', (event) => {
-      if (peerConnection.connectionState === 'connected') {
-        console.log('Connected');
-      }
     });
   };
 
