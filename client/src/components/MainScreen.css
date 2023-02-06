@@ -3,6 +3,11 @@
     height: 90vh;
 }
 
+.ready-screen-container {
+    width: 360px;
+    height: 300px;
+}
+
 .screen-grid {
     display: grid;
     grid-template-columns: repeat(var(--grid-size), 1fr);
@@ -12,6 +17,11 @@
     gap: 15px;
 }
 
+.ready-screen {
+    width: 100%;
+    height: 100%;
+}
+
 .screen-card {
     background-color: #000000;
     width: 100%;
@@ -19,6 +29,14 @@
     border-radius: 7.5px;
     position: relative;
     min-height: 200px;
+}
+
+.ready-card {
+    background-color: #000000;
+    border-radius: 7.5px;
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .avatar {
@@ -45,14 +63,6 @@
     border-radius: 7.5px;
     object-fit: cover;
     transform: rotateY(180deg);
-}
-
-.screen {
-    width: 100%;
-    height: 100%;
-    background-color: #bcbcbc;
-    border-radius: 7.5px;
-    object-fit: cover;
 }
 
 .muted-icon {

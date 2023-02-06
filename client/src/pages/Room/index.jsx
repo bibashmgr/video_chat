@@ -6,9 +6,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import MainScreen from '../../components/MainScreen';
 import BottomNavigation from '../../components/BottomNavigation';
 
-// styling
-import './index.css';
-
 // actions
 import { removeUser } from '../../features/userInfo';
 import {
@@ -28,7 +25,7 @@ const Room = () => {
   const userInfo = useSelector((state) => state.userInfo.value);
   const participants = useSelector((state) => state.participants.value);
 
-  const [peers, setPeers] = useState([]);
+  const [isReady, setIsReady] = useState(false);
   const [localStream, setLocalStream] = useState(null);
 
   const dispatch = useDispatch();
@@ -48,36 +45,115 @@ const Room = () => {
   };
 
   // controllers
+  const handleReadyBtn = () => {
+    setIsReady(!isReady);
+
+    socket.emit('join-room', {
+      roomId: roomId,
+      participantInfo: getUserInfo(),
+    });
+    socket.on('user-joined', (data) => {
+      dispatch(addParticipants(data));
+    });
+    socket.on('new-user-joined', (data) => {
+      makeCall(userInfo.email, data.email);
+      dispatch(addParticipant(data));
+    });
+    socket.on('user-left', (data) => {
+      dispatch(removeParticipant({ userId: data.userId }));
+    });
+    socket.on('user-disconnected', (data) => {
+      dispatch(removeParticipant({ userId: data.userId }));
+    });
+    socket.on('incoming-call', async (data) => {
+      const { caller, callee, offer } = data;
+
+      const peerConnection = new RTCPeerConnection(configuration);
+
+      peerConnection.ondatachannel = (event) => {
+        const remoteDataChannel = event.channel;
+      };
+
+      const remoteDesc = new RTCSessionDescription(offer);
+      await peerConnection.setRemoteDescription(remoteDesc);
+
+      const answer = await peerConnection.createAnswer(offer);
+      await peerConnection.setLocalDescription(answer);
+
+      socket.emit('answer-call', {
+        roomId: roomId,
+        caller: caller,
+        callee: callee,
+        answer: answer,
+      });
+
+      peerConnection.addEventListener('icecandidate', (event) => {
+        if (event.candidate) {
+          socket.emit('send-candidate', {
+            roomId: roomId,
+            sender: callee,
+            receiver: caller,
+            candidate: event.candidate,
+          });
+        }
+      });
+
+      socket.on('receive-candidate', async (data) => {
+        const { sender, receiver, candidate } = data;
+        await peerConnection.addIceCandidate(candidate);
+      });
+
+      peerConnection.addEventListener('connectionstatechange', (event) => {
+        if (peerConnection.connectionState === 'connected') {
+          console.log('Connected');
+        }
+      });
+    });
+  };
+
   const handleAudio = () => {
+    localStream.getTracks().forEach((track) => {
+      if (track.kind === 'audio') {
+        track.enabled = !getUserInfo().prefs.audio;
+      }
+    });
     dispatch(setAudio({ userId: userInfo.email }));
-    localStream.getAudioTracks()[0].enabled = !getUserInfo().prefs.audio;
   };
+
   const handleVideo = () => {
+    localStream.getTracks().forEach((track) => {
+      if (track.kind === 'video') {
+        track.enabled = !getUserInfo().prefs.video;
+      }
+    });
     dispatch(setVideo({ userId: userInfo.email }));
-
-    console.log(peers);
-
-    localStream.getVideoTracks()[0].enabled = !getUserInfo().prefs.video;
-
-    let videoElement = document.getElementById(`video-${userInfo.email}`);
-    if (videoElement) {
-      videoElement.srcObject = localStream;
-    }
   };
+
   const handleScreen = () => {
     dispatch(setScreen({ userId: userInfo.email }));
   };
+
   const handleEndCall = () => {
-    socket.emit('leave-room', { roomId: roomId, email: userInfo.email });
+    if (isReady) {
+      socket.emit('leave-room', { roomId: roomId, email: userInfo.email });
+      socket.off('user-joined');
+      socket.off('new-user-joined');
+      socket.off('user-left');
+      socket.off('user-disconnected');
+      socket.off('incoming-call');
+    }
     dispatch(removeUser());
     dispatch(clearParticipants());
     navigate('/');
   };
+
+  // helpers
   const getUserInfo = () => {
     return participants.find(
       (participant) => participant.email === userInfo.email
     );
   };
+
   const makeCall = async (currentUser, newUser) => {
     const peerConnection = new RTCPeerConnection(configuration);
     const dataChannel = peerConnection.createDataChannel('dataChannel');
@@ -133,6 +209,13 @@ const Room = () => {
 
   useEffect(() => {
     if (userInfo.email === '') {
+      if (isReady) {
+        socket.off('user-joined');
+        socket.off('new-user-joined');
+        socket.off('user-left');
+        socket.off('user-disconnected');
+        socket.off('incoming-call');
+      }
       dispatch(clearParticipants([]));
       navigate('/');
     }
@@ -145,8 +228,10 @@ const Room = () => {
         video: true,
       })
       .then((stream) => {
-        stream.getVideoTracks()[0].enabled = false;
-        stream.getAudioTracks()[0].enabled = false;
+        let videoElement = document.getElementById(`video-${userInfo.email}`);
+        if (videoElement) {
+          videoElement.srcObject = stream;
+        }
         setLocalStream(stream);
       })
       .catch((error) => {
@@ -154,91 +239,12 @@ const Room = () => {
       });
   }, []);
 
-  useEffect(() => {
-    socket.on('user-joined', (data) => {
-      dispatch(addParticipants(data));
-    });
-    socket.on('new-user-joined', (data) => {
-      makeCall(userInfo.email, data.email);
-      dispatch(addParticipant(data));
-    });
-    socket.on('user-left', (data) => {
-      dispatch(removeParticipant({ userId: data.userId }));
-    });
-    socket.on('user-disconnected', (data) => {
-      dispatch(removeParticipant({ userId: data.userId }));
-    });
-    return () => {
-      socket.off('user-joined');
-      socket.off('new-user-joined');
-      socket.off('user-left');
-      socket.off('user-disconnected');
-    };
-  }, []);
-
-  useEffect(() => {
-    socket.on('incoming-call', async (data) => {
-      const { caller, callee, offer } = data;
-
-      const peerConnection = new RTCPeerConnection(configuration);
-
-      peerConnection.ondatachannel = (event) => {
-        const remoteDataChannel = event.channel;
-      };
-
-      const remoteDesc = new RTCSessionDescription(offer);
-      await peerConnection.setRemoteDescription(remoteDesc);
-
-      const answer = await peerConnection.createAnswer(offer);
-      await peerConnection.setLocalDescription(answer);
-
-      socket.emit('answer-call', {
-        roomId: roomId,
-        caller: caller,
-        callee: callee,
-        answer: answer,
-      });
-
-      peerConnection.addEventListener('icecandidate', (event) => {
-        if (event.candidate) {
-          socket.emit('send-candidate', {
-            roomId: roomId,
-            sender: callee,
-            receiver: caller,
-            candidate: event.candidate,
-          });
-        }
-      });
-
-      socket.on('receive-candidate', async (data) => {
-        const { sender, receiver, candidate } = data;
-        await peerConnection.addIceCandidate(candidate);
-      });
-
-      peerConnection.addEventListener('connectionstatechange', (event) => {
-        if (peerConnection.connectionState === 'connected') {
-          console.log('Connected');
-
-          const newPeers = {
-            email: caller,
-            peerConnection: peerConnection,
-          };
-          setPeers((prevState) => [...prevState, newPeers]);
-        }
-      });
-    });
-
-    return () => {
-      socket.off('incoming-call');
-    };
-  }, []);
-
   return (
-    <div className='container'>
+    <div className={isReady ? 'container' : 'ready-container'}>
       <MainScreen
         participants={participants}
         userInfo={userInfo}
-        localStream={localStream}
+        isReady={isReady}
       />
       <BottomNavigation
         userInfo={getUserInfo()}
@@ -246,7 +252,18 @@ const Room = () => {
         handleVideo={handleVideo}
         handleScreen={handleScreen}
         handleEndCall={handleEndCall}
+        isReady={isReady}
       />
+      {!isReady && (
+        <div className='ready-screen-btns'>
+          <button className='ready-to-go-btn' onClick={handleReadyBtn}>
+            Ready
+          </button>
+          <button className='go-back-btn' onClick={handleEndCall}>
+            Go Back
+          </button>
+        </div>
+      )}
     </div>
   );
 };

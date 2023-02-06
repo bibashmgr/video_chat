@@ -2,20 +2,14 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-// styles
-import './index.css';
-
 // actions
 import { setUserInfo } from '../../features/userInfo';
 import { addParticipant } from '../../features/participants';
 
 // helpers
-import { useSocket } from '../../helpers/socketHelper';
 import { generateRandomColor } from '../../helpers/colorGenerator';
 
 const Home = () => {
-  const { socket } = useSocket();
-
   const [formInfo, setFormInfo] = useState({
     email: '',
     roomId: '',
@@ -34,21 +28,15 @@ const Home = () => {
       email: formInfo.email,
       avatarColor: generateRandomColor(),
       prefs: {
-        audio: false,
-        video: false,
+        audio: true,
+        video: true,
         screen: false,
       },
     };
 
     navigate(`room/${formInfo.roomId}`);
 
-    socket.emit('join-room', {
-      roomId: formInfo.roomId,
-      participantInfo: participantInfo,
-    });
-
     dispatch(addParticipant(participantInfo));
-
     dispatch(
       setUserInfo({
         email: formInfo.email,

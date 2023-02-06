@@ -6,7 +6,7 @@ import './MainScreen.css';
 // icons
 import { IoMdMicOff } from 'react-icons/io';
 
-const MainScreen = ({ participants, userInfo, localStream }) => {
+const MainScreen = ({ participants, userInfo, isReady }) => {
   let gridCol =
     participants.length === 1 ? 1 : participants.length <= 4 ? 2 : 4;
   let gridColSize = participants.length <= 4 ? 1 : 2;
@@ -16,9 +16,11 @@ const MainScreen = ({ participants, userInfo, localStream }) => {
       : Math.ceil(participants.length / 2);
 
   return (
-    <div className='main-screen-container'>
+    <div
+      className={isReady ? 'main-screen-container' : 'ready-screen-container'}
+    >
       <div
-        className='screen-grid'
+        className={isReady ? 'screen-grid' : 'ready-screen'}
         style={{
           '--grid-size': gridCol,
           '--grid-col-size': gridColSize,
@@ -32,7 +34,7 @@ const MainScreen = ({ participants, userInfo, localStream }) => {
               key={index}
               participant={participant}
               userInfo={userInfo}
-              localStream={localStream}
+              isReady={isReady}
             />
           );
         })}
@@ -52,9 +54,9 @@ const MainScreen = ({ participants, userInfo, localStream }) => {
   );
 };
 
-const ParticipantCard = ({ participant, userInfo, localStream }) => {
+const ParticipantCard = ({ participant, userInfo, isReady }) => {
   return (
-    <div className='screen-card'>
+    <div className={isReady ? 'screen-card' : 'ready-card'}>
       {!participant.prefs.video && (
         <div
           className='avatar'
@@ -68,7 +70,7 @@ const ParticipantCard = ({ participant, userInfo, localStream }) => {
         className='video'
         id={`video-${participant.email}`}
         autoPlay={true}
-        muted={true}
+        muted={false}
         controls={false}
         style={{
           backgroundColor: !participant.prefs.video ? '#000000' : 'none',

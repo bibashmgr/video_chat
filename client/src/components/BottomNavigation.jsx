@@ -15,9 +15,10 @@ const BottomNavigation = ({
   handleVideo,
   handleScreen,
   handleEndCall,
+  isReady,
 }) => {
   return (
-    <nav className='navbar-container'>
+    <nav className={isReady ? 'navbar-container' : 'ready-screen-controller'}>
       <div
         className={`icon-btn ${!userInfo?.prefs.audio && 'icon-btn-disable'}`}
         onClick={handleAudio}
@@ -39,19 +40,23 @@ const BottomNavigation = ({
           <BiVideoOff className='icon' />
         )}
       </div>
-      <div
-        className={`icon-btn ${userInfo?.prefs.screen && 'icon-btn-disable'}`}
-        onClick={handleScreen}
-      >
-        {userInfo?.prefs.screen ? (
-          <BsPauseFill className='icon' />
-        ) : (
-          <TbScreenShare className='icon' />
-        )}
-      </div>
-      <div className='icon-btn icon-btn-disable' onClick={handleEndCall}>
-        <TbPhoneX className='icon' />
-      </div>
+      {isReady && (
+        <div
+          className={`icon-btn ${userInfo?.prefs.screen && 'icon-btn-disable'}`}
+          onClick={handleScreen}
+        >
+          {userInfo?.prefs.screen ? (
+            <BsPauseFill className='icon' />
+          ) : (
+            <TbScreenShare className='icon' />
+          )}
+        </div>
+      )}
+      {isReady && (
+        <div className='icon-btn icon-btn-disable' onClick={handleEndCall}>
+          <TbPhoneX className='icon' />
+        </div>
+      )}
     </nav>
   );
 };

@@ -38,3 +38,78 @@ button:hover {
   height: 100vh;
   background-color: #151521;
 }
+
+.home-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-card {
+  background-color: #2D2D40;
+  width: 350px;
+  padding: 40px 30px;
+  border-radius: 10px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px 0px;
+}
+
+.input-container label {
+  color: #CDCDDE;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.join-btn {
+  background-color: #3699FF;
+  color: #FFFFFF;
+}
+
+@media screen and (max-width: 576px) {
+  .form-card {
+    width: 300px;
+  }
+}
+
+.ready-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #151521;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+}
+
+.ready-screen-btns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  width: 360px;
+  margin-top: 25px;
+}
+
+.ready-to-go-btn {
+  background-color: #3699FF;
+  color: #FFFFFF;
+  width: 100%;
+}
+
+.go-back-btn {
+  background-color: #F64E60;
+  color: #FFFFFF;
+  width: 100%;
+}
