@@ -51,6 +51,27 @@ module.exports = (io) => {
       );
     };
 
+    // update user prefs
+    const updateParticipantPrefs = (roomId, email, type) => {
+      const updatedParticipants = [];
+      participants.map((participant) => {
+        if (participant.roomId === roomId && participant.email === email) {
+          if (type === 'audio') {
+            participant.prefs.audio = !participant.prefs.audio;
+          }
+          if (type === 'video') {
+            participant.prefs.video = !participant.prefs.video;
+          }
+
+          updatedParticipants.push(participant);
+        } else {
+          updatedParticipants.push(participant);
+        }
+      });
+
+      participants = updatedParticipants;
+    };
+
     socket.on('join-room', (data) => {
       const { roomId, participantInfo } = data;
       console.log(`${participantInfo.email} joined ${roomId}`);
@@ -100,6 +121,16 @@ module.exports = (io) => {
         receiver: receiver,
         candidate: candidate,
       });
+    });
+
+    socket.on('update-prefs', (data) => {
+      const { roomId, email, type } = data;
+
+      updateParticipantPrefs(roomId, email, type);
+
+      socket.broadcast
+        .to(roomId)
+        .emit('new-prefs', { email: email, type: type });
     });
 
     socket.on('leave-room', (data) => {

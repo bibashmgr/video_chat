@@ -59,6 +59,16 @@ const Room = () => {
       makeCall(userInfo.email, data.email);
       dispatch(addParticipant(data));
     });
+    socket.on('new-prefs', (data) => {
+      const { email, type } = data;
+
+      if (type === 'audio') {
+        dispatch(setAudio({ userId: email }));
+      }
+      if (type === 'video') {
+        dispatch(setVideo({ userId: email }));
+      }
+    });
     socket.on('user-left', (data) => {
       dispatch(removeParticipant({ userId: data.userId }));
     });
@@ -124,6 +134,11 @@ const Room = () => {
         track.enabled = !getUserInfo().prefs.audio;
       }
     });
+    socket.emit('update-prefs', {
+      roomId: roomId,
+      email: userInfo.email,
+      type: 'audio',
+    });
     dispatch(setAudio({ userId: userInfo.email }));
   };
 
@@ -132,6 +147,11 @@ const Room = () => {
       if (track.kind === 'video') {
         track.enabled = !getUserInfo().prefs.video;
       }
+    });
+    socket.emit('update-prefs', {
+      roomId: roomId,
+      email: userInfo.email,
+      type: 'video',
     });
     dispatch(setVideo({ userId: userInfo.email }));
   };
@@ -175,6 +195,7 @@ const Room = () => {
       let videoElement = document.getElementById(`video-${newUser}`);
       if (videoElement) {
         videoElement.srcObject = event.streams[0];
+        videoElement.muted = false;
       }
     });
 
@@ -237,6 +258,7 @@ const Room = () => {
         let videoElement = document.getElementById(`video-${userInfo.email}`);
         if (videoElement) {
           videoElement.srcObject = stream;
+          videoElement.muted = true;
         }
         setLocalStream(stream);
       })

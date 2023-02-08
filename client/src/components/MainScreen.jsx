@@ -70,7 +70,6 @@ const ParticipantCard = ({ participant, userInfo, isReady }) => {
         className='video'
         id={`video-${participant.email}`}
         autoPlay={true}
-        muted={false}
         controls={false}
         style={{
           backgroundColor: !participant.prefs.video ? '#000000' : 'none',
