@@ -12,7 +12,6 @@ dotenv.config();
 // environment variables
 const PORT = process.env.PORT_NUMBER || 9999;
 const CLIENT_URL = process.env.CLIENT_BASE_URL;
-const DB_URL = process.env.MONGODB_URL;
 
 // routes
 const indexRoutes = require('./routes/index.js');
@@ -35,25 +34,10 @@ const io = new Server(httpServer, {
 });
 require('./config/socket')(io);
 
-mongoose.set('strictQuery', true);
-mongoose.connect(
-  DB_URL,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-  (error) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Database connected');
-      httpServer.listen(PORT, (err) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(`Server running on http://localhost:${PORT}`);
-        }
-      });
-    }
+httpServer.listen(PORT, (err) => {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log(`Server running on http://localhost:${PORT}`);
   }
-);
+});
